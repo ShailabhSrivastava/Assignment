@@ -6,16 +6,6 @@ const isValidEmail = function (mail) {
   }
 };
 
-const isValidPassword = function (password) {
-  if (
-    /^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,15}$/.test(
-      password
-    )
-  )
-    return true;
-  return false;
-};
-
 const isValidName = function (name) {
   if (/^[a-zA-Z\.]*$/.test(name)) return true;
   return false;
@@ -44,7 +34,6 @@ const isValid = function (value) {
 module.exports = {
   isValid,
   isValidEmail,
-  isValidPassword,
   isValidName,
   isValidPhone,
   isValidRequestBody,

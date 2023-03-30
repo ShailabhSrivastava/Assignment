@@ -11,7 +11,6 @@ const authentication = async (req, res, next) => {
       return res
         .status(400)
         .send({ status: false, msg: "token must be present" });
-    token = req.headers.authorization.split(" ")[1];
 
     jwt.verify(token, "As calm as the sea", (err, decodedToken) => {
       if (err) {
@@ -32,7 +31,7 @@ const authentication = async (req, res, next) => {
 //=========================AUTHORIZATION FOR USER UDPATE===============================
 
 const isUserAuthorised = async (req, res, next) => {
-  let userId = req.params.userId;
+  let userId = req.params.id;
 
   if (!isValidObjectId(userId))
     return res.status(403).send({ status: false, message: "Invalid UserId" });

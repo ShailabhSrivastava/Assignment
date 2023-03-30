@@ -3,7 +3,6 @@ const userModel = require("../models/userModel");
 const {
   isValidObjectId,
   isValidEmail,
-  isValidPassword,
   isValidName,
   isValidPhone,
   isValidRequestBody,
@@ -74,10 +73,6 @@ const createUser = async function (req, res) {
       return res
         .status(400)
         .send({ status: false, message: "password is mandatory" });
-    if (!isValidPassword(password))
-      return res
-        .status(400)
-        .send({ status: false, message: "password is invalid" });
 
     let salt = await bcrypt.genSalt(10);
     data.password = await bcrypt.hash(data.password, salt);
@@ -148,11 +143,23 @@ const userLogin = async function (req, res) {
   }
 };
 
+//=================================GET ALL PROFILE ====================================================================
+
+const getAllUser = async function(req,res){
+  try{
+    const users = await userModel.find({isDeleted: false})
+    return res.status(200).send({status: true, message: "All Users", data:users }) 
+  }catch (err){
+    return res.status(500).send({status:false, message: err.message})
+  }
+}
+
+
 //=================================GET PROFILE ====================================================================
 
 const getProfile = async function (req, res) {
   try {
-    const userId = req.params.userId;
+    const userId = req.params.id;
 
     if (!isValidObjectId(userId))
       return res
@@ -177,9 +184,9 @@ const getProfile = async function (req, res) {
 
 const updateUser = async function (req, res) {
   try {
-    let userId = req.params.userId;
+    let userId = req.params.id;
     let data = req.body;
-    const { fname, lname, email, phone, password, file, address } = data;
+    const { fname, lname, email, phone, password } = data;
 
     let user = await userModel.findById(userId);
     if (!user) {
@@ -216,15 +223,14 @@ const updateUser = async function (req, res) {
         return res
           .status(400)
           .send({ status: false, message: "email is invalid" });
+      let emailExist = await userModel.findOne({ email: email });
+      if (emailExist)
+        return res.status(400).send({
+          status: false,
+          message: "user with this email already exists",
+        });
       updateQueries["email"] = email;
     }
-
-    let emailExist = await userModel.findOne({ email: email });
-    if (emailExist)
-      return res.status(400).send({
-        status: false,
-        message: "user with this email already exists",
-      });
 
     if (phone) {
       if (!isValidPhone(phone))
@@ -242,11 +248,6 @@ const updateUser = async function (req, res) {
     }
 
     if (password) {
-      if (!isValidPassword(password))
-        return res
-          .status(400)
-          .send({ status: false, message: "password is invalid" });
-
       let salt = await bcrypt.genSalt(10);
       updateQueries["password"] = await bcrypt.hash(data.password, salt);
     }
@@ -277,9 +278,9 @@ const updateUser = async function (req, res) {
 
 //======================================================DELETE USER=====================================================
 
-const deleteUserById = async (req, res) => {
+const deleteUserById = async function (req, res) {
   try {
-    const userId = req.params.userId;
+    const userId = req.params.id;
     if (!isValidObjectId(userId))
       return res.status(400).send({
         status: false,
@@ -288,9 +289,13 @@ const deleteUserById = async (req, res) => {
 
     const findUser = await userModel.findById(userId);
     if (!findUser) {
+      return res.status(400).send({ status: false, message: "No user found" });
+    }
+
+    if (findUser.isDeleted == true) {
       return res
         .status(400)
-        .send({ status: false, message: `No user found by ${userId}` });
+        .send({ status: false, message: "User has been already deleted" });
     }
 
     const deletedUser = await userModel.findOneAndUpdate(
@@ -301,7 +306,7 @@ const deleteUserById = async (req, res) => {
 
     return res.status(200).send({
       status: true,
-      message: `Success`,
+      message: "Success",
       data: deletedUser,
     });
   } catch (err) {
@@ -309,11 +314,11 @@ const deleteUserById = async (req, res) => {
   }
 };
 
-
 module.exports = {
   createUser,
   userLogin,
   getProfile,
   updateUser,
   deleteUserById,
+  getAllUser
 };
