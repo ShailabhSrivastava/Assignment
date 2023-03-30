@@ -1,7 +1,7 @@
 {
-  "name": "assignment",
+  "name": "user",
   "version": "1.0.0",
-  "description": "",
+  "description": "Manages the user of the comapany",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -10,7 +10,7 @@
     "type": "git",
     "url": "git+https://github.com/ShailabhSrivastava/Assignment.git"
   },
-  "author": "",
+  "author": "Shailabh Srivastava",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/ShailabhSrivastava/Assignment/issues"
