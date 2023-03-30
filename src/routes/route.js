@@ -12,5 +12,11 @@ router.put(
   isUserAuthorised,
   userController.updateUser
 );
+router.delete(
+  "/user/:userId/profile",
+  authentication,
+  isUserAuthorised,
+  userController.deleteUserById
+);
 
 module.exports = router;

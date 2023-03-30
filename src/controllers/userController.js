@@ -277,4 +277,43 @@ const updateUser = async function (req, res) {
 
 //======================================================DELETE USER=====================================================
 
-module.exports = { createUser, userLogin, getProfile, updateUser };
+const deleteUserById = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    if (!isValidObjectId(userId))
+      return res.status(400).send({
+        status: false,
+        message: "Please enter valid USER Id in params",
+      });
+
+    const findUser = await userModel.findById(userId);
+    if (!findUser) {
+      return res
+        .status(400)
+        .send({ status: false, message: `No user found by ${userId}` });
+    }
+
+    const deletedUser = await userModel.findOneAndUpdate(
+      { _id: userId },
+      { $set: { isDeleted: true, deletedAt: new Date() } },
+      { new: true }
+    );
+
+    return res.status(200).send({
+      status: true,
+      message: `Success`,
+      data: deletedUser,
+    });
+  } catch (err) {
+    res.status(500).send({ status: false, message: err.message });
+  }
+};
+
+
+module.exports = {
+  createUser,
+  userLogin,
+  getProfile,
+  updateUser,
+  deleteUserById,
+};
